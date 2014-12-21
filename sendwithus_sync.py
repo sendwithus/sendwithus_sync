@@ -143,8 +143,6 @@ def push_templates(swu, directory):
 
 
 def main():
-    global swu
-
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('-a', '--apikey', type=str, required=True)
     parser.add_argument('command', choices=CMD_COMMANDS)
