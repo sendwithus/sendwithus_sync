@@ -1,6 +1,9 @@
 Sendwithus Toolbelt
 ===================
 
+### Requirements
+sendwithus >= 1.3.0
+
 ### Pull Templates
 Example:
 ```
