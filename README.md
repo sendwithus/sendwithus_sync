@@ -4,6 +4,30 @@ Sendwithus Toolbelt
 ### Requirements
 sendwithus >= 1.3.0
 
+### Pull Snippets
+Example:
+```
+python swu_sync.py -a live_1234qwerasdf0897 pull snippets ./sendwithus
+Writing ./sendwithus/snippets/header.html
+Writing ./sendwithus/snippets/name again.html
+Writing ./sendwithus/snippets/css_sample.html
+Writing ./sendwithus/snippets/Footer_Standard.html
+Writing ./sendwithus/snippets/api?.html
+Writing ./sendwithus/snippets/api? 2.html
+```
+
+### Push Snippets
+Example:
+```
+python swu_sync.py -a live_1234qwerasdf0897 push snippets ./sendwithus
+Updating snippet: api? 2
+Updating snippet: api?
+Updating snippet: css_sample
+Updating snippet: Footer_Standard
+Updating snippet: header
+Updating snippet: name again
+```
+
 ### Pull Templates
 Example:
 ```
@@ -31,7 +55,7 @@ Writing ./sendwithus/templates/Test Welcome Email 2/Version B.json
 ### Push Templates
 Example:
 ```
-python swu_sync.py -a live_1234qwerasdf0897 pull templates ./sendwithus
+python swu_sync.py -a live_1234qwerasdf0897 push templates ./sendwithus
 Processing ./sendwithus/templates/_new_template_/a
   Updating version: a
 Processing ./sendwithus/templates/asdf/testing
@@ -46,25 +70,3 @@ Processing ./sendwithus/templates/Test Welcome Email 2/Version B
   Updating version: Version B
 ```
 
-### Pull Snippets
-Example:
-```
-python swu_sync.py -a live_1234qwerasdf0897 pull snippets ./sendwithus
-Writing ./sendwithus/snippets/header.html
-Writing ./sendwithus/snippets/name again.html
-Writing ./sendwithus/snippets/css_sample.html
-Writing ./sendwithus/snippets/Footer_Standard.html
-Writing ./sendwithus/snippets/api?.html
-Writing ./sendwithus/snippets/api? 2.html
-```
-
-### Push Snippets
-Example:
-```
-Updating snippet: api? 2
-Updating snippet: api?
-Updating snippet: css_sample
-Updating snippet: Footer_Standard
-Updating snippet: header
-Updating snippet: name again
-```
