@@ -8,7 +8,7 @@ git clone git@github.com:sendwithus/sendwithus_sync.git
 
 ## Dependencies
 ```
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ## Usage
