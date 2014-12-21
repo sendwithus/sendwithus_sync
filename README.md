@@ -8,7 +8,7 @@ git clone git@github.com:sendwithus/sendwithus_sync.git
 
 ## Dependencies
 ```
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ Resources:
 Pull to local filesystem:
 
 ```
-python sendwithus_sync.py pull snippets ./sendwithus
+>>> python sendwithus_sync.py pull snippets ./sendwithus
 Writing ./sendwithus/snippets/header.html
 Writing ./sendwithus/snippets/name again.html
 Writing ./sendwithus/snippets/css_sample.html
@@ -40,7 +40,7 @@ Writing ./sendwithus/snippets/api? 2.html
 
 Push snippets to sendwithus:
 ```
-python sendwithus_sync.py push snippets ./sendwithus
+>>> python sendwithus_sync.py push snippets ./sendwithus
 Updating snippet: api? 2
 Updating snippet: api?
 Updating snippet: css_sample
@@ -53,7 +53,7 @@ Updating snippet: name again
 
 Pull templates to local filesystem:
 ```
-python sendwithus_sync.py pull templates ./sendwithus
+>>> python sendwithus_sync.py pull templates ./sendwithus
 Writing ./sendwithus/templates/Sanity Check/New Version.html
 Writing ./sendwithus/templates/Sanity Check/New Version.txt
 Writing ./sendwithus/templates/Sanity Check/New Version.json
@@ -76,7 +76,7 @@ Writing ./sendwithus/templates/Test Welcome Email 2/Version B.json
 
 Push templates to sendwithus:
 ```
-python sendwithus_sync.py push templates ./sendwithus
+>>> python sendwithus_sync.py push templates ./sendwithus
 Processing ./sendwithus/templates/_new_template_/a
   Updating version: a
 Processing ./sendwithus/templates/asdf/testing
