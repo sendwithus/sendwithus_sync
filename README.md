@@ -18,7 +18,11 @@ pip install -r requirements.txt
 ```sh
 python sendwithus_sync.py [-h] -a APIKEY <command> <resource> [directory]
 ```
-
+Note: Please note that this tool supports incremental push. On pull/push 
+a new .swu file is created under templates/snippets which holds the last changes 
+time stamp. When pushing content the tool checks if each file has modification date 
+greater than the .swu file and if it is not - the file is skipped. 
+If you need to push the whole content again, please manually delete the corresponding .swu file.
 Commands:
 - pull
 - push
