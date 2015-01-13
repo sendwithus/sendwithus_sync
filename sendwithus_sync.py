@@ -3,11 +3,11 @@ import json
 import os
 import datetime
 import sendwithus
+import json
 
 
-DESCRIPTION = 'Sync sendwithus resources to/from local filesystem.'
+DESCRIPTION = 'Sync sendwithus resources to/from local filesystem, renders and sends templates.'
 
-CMD_COMMANDS = ['pull', 'push']
 CMD_RESOURCES = ['templates', 'snippets']
 
 def listdir_nohiddenfiles(path):
@@ -48,14 +48,14 @@ def pull_snippets(swu, directory):
 
 
 def push_snippets(swu, directory):
-    updated = False
+    updated = False	
     snippets = swu.snippets().json()
     snippet_dir = os.path.join(directory, 'snippets')
     if os.path.exists(os.path.join(snippet_dir, '.swu')):
         lastpush =  os.path.getmtime(os.path.join(snippet_dir, '.swu'))
     else:
         lastpush = 0
-
+        
     for root, subFolders, files in os.walk(snippet_dir):
         for snippet_file in files:
             path = os.path.join(root, snippet_file)
@@ -177,16 +177,95 @@ def push_templates(swu, directory):
     if not updated:
         print "There are no templates that has been modified since the last push."
     touch(os.path.join(templates_dir, '.swu'))
-
-
+    
+def get_template_info_by_path(swu, template_path):
+    path_elements_list = os.path.normpath(template_path).split(os.sep)
+    version_name = os.path.splitext(os.path.basename(path_elements_list[-1]))[0]
+    template_name = path_elements_list[-2]
+    templates = swu.templates().json()
+    template_id = None
+    version_id = None
+    for template in templates:
+                    if template["name"] == template_name:
+                        template_id = template["id"]
+                        for version in template["versions"]:
+                            if version["name"] == version_name:
+                                version_id = version["id"]
+                                break
+                        break       
+    return json.dumps(dict(template_name=template_name, template_id=template_id, version_name=version_name, version_id = version_id))
+    
+def render_template(swu, data_file, template):
+        if not data_file:
+            print 'No source data provided.'
+        elif not template:
+            print 'No template provided, please provide a valid template to be rendered'
+        else:
+            path_elements_list = os.path.normpath(template).split(os.sep)
+            if len(path_elements_list) > 2:
+                version_name = os.path.splitext(os.path.basename(path_elements_list[-1]))[0]
+                template_name = path_elements_list[-2]
+                if os.path.exists(data_file):
+                    data = _read_file(data_file)
+                    template_info = json.loads(get_template_info_by_path(swu, template))
+                    
+                    render_result = swu.render(template_info['template_id'], json.loads(data), template_info['version_id'], template_info['version_name'])
+                    print render_result.json()['html'].encode("utf-8")
+                else:
+                    print 'File {} not found.'.format(os.path.abspath(data_file))
+            else:
+                print 'Invalid template name and version provided.'
+                
+def send_mail(swu, data_file, email, template):
+         if not data_file:
+            print 'No source data provided.'
+         elif not email:
+            print 'No recipient provided, please provide a valid email'
+         elif not template:
+            print 'No template provided, please provide a valid template to be sent'
+         else:
+            path_elements_list = os.path.normpath(template).split(os.sep)
+            if len(path_elements_list) > 2:
+                version_name = os.path.splitext(os.path.basename(path_elements_list[-1]))[0]
+                template_name = path_elements_list[-2]
+                if os.path.exists(data_file):
+                    data = _read_file(data_file)
+                    template_info = json.loads(get_template_info_by_path(swu, template))
+                    recipient = json.dumps(dict(address=email))   
+                    render_result = swu.send(template_info['template_id'], json.loads(recipient), json.loads(data), None, None, None, None, None, template_info['version_name'])
+                    try:
+                        response = render_result.json();
+                        if response['success']:
+                            print 'An email is successfully sent to {}. Template name: \'{}\', version name: \'{}\''.format(email, template_name, version_name)
+                    except:
+                        print 'An error occurred while sending an email - {}'.format(render_result.content)
+                else:
+                    print 'File {} not found.'.format(os.path.abspath(data_file))
+            else:
+                 print 'Invalid template name and version provided.'
 def main():
-    parser = argparse.ArgumentParser(description=DESCRIPTION)
-    parser.add_argument('-a', '--apikey', type=str, required=True)
-    parser.add_argument('command', choices=CMD_COMMANDS)
-    parser.add_argument('resource', choices=CMD_RESOURCES)
-    parser.add_argument('directory', nargs='?', default='.')
+    main_parser = argparse.ArgumentParser(description=DESCRIPTION)
+    main_parser.add_argument('-a', '--apikey', type=str, required=True, help="required, used for authentication")
+    main_parser.add_argument('-d', '--data', type=str, required=False, help="optional, required only in conjunction with render command, specifies a file containing data used for template rendering")
+    main_parser.add_argument('-e', '--email', type=str, required=False, help="optional, required only in conjunction with send command, specifies the email address to which the email will be sent to")
 
-    args = parser.parse_args()
+    subparsers = main_parser.add_subparsers(help='commands', dest='command')
+    
+    pull_parser = subparsers.add_parser('pull', help='process pull templates and snippets')
+    pull_parser.add_argument('resource', choices=CMD_RESOURCES)
+    pull_parser.add_argument('directory', nargs='?', default='.')
+    
+    push_parser = subparsers.add_parser('push', help='process push templates and snippets')
+    push_parser.add_argument('resource', choices=CMD_RESOURCES)
+    push_parser.add_argument('directory', nargs='?', default='.')
+    
+    render_parser = subparsers.add_parser('render', help='process render templates')
+    render_parser.add_argument('template', nargs='?', help="Required, specifies path to template version which is to be rendered. <template_name>/<template_version>.html")
+    
+    send_parser = subparsers.add_parser('send', help='process send email')
+    send_parser.add_argument('template', nargs='?', help="Required, specifies path to template version which is to be sent. <template_name>/<template_version>.html")
+
+    args = main_parser.parse_args()
     swu = sendwithus.api(args.apikey)
 
     func_map = {
@@ -201,12 +280,15 @@ def main():
     }
 
     try:
-        func = func_map[args.command][args.resource]
+        if args.command == 'render':
+            render_template(swu, args.data, args.template)
+        elif args.command == 'send':
+            send_mail(swu, args.data, args.email, args.template)
+        else:
+            func = func_map[args.command][args.resource]
+            func(swu, args.directory)
     except KeyError:
         print 'Unknown Command: {} {}'.format(args.command, args.resource)
-    else:
-        func(swu, args.directory)
-
 
 if __name__ == "__main__":
     main()
