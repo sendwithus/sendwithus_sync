@@ -232,7 +232,7 @@ def send_mail(swu, data_file, email, template):
                     data = _read_file(data_file)
                     template_info = json.loads(get_template_info_by_path(swu, template))
                     recipient = json.dumps(dict(address=email))
-                    render_result = swu.send(template_info['template_id'], json.loads(recipient), json.loads(data), email_version_name=template_info['version_name'])
+                    render_result = swu.send(email_id=template_info['template_id'], recipient=json.loads(recipient), email_data=json.loads(data), email_version_name=template_info['version_name'])
                     try:
                         response = render_result.json();
                         if response['success']:
